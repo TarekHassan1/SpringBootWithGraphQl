@@ -1,0 +1,122 @@
+# ==========================================
+# 1. CORE TYPES (PURE STRINGS, NO ENUMS)
+# ==========================================
+
+"""
+Represents a writer within the system who can publish multiple articles.
+"""
+type Author {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    posts: [Post!]!
+}
+
+"""
+Represents a blog post or technical article written by an Author.
+"""
+type Post {
+    id: ID!
+    title: String!
+    text: String!
+    category: String! # Using pure String
+    author: Author!
+}
+
+# ==========================================
+# 2. PAGINATION & CONNECTION TYPES
+# ==========================================
+
+"""
+Metadata containing pagination state to navigate through pages.
+"""
+type PageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    totalPages: Int!
+    totalElements: Int!
+    currentPage: Int!
+}
+
+"""
+The wrapper type holding paginated Post items and page metadata.
+"""
+type PostConnection {
+    nodes: [Post!]!
+    pageInfo: PageInfo!
+}
+
+"""
+The wrapper type holding paginated Author items and page metadata.
+"""
+type AuthorConnection {
+    nodes: [Author!]!
+    pageInfo: PageInfo!
+}
+
+# ==========================================
+# 3. INPUT TYPES FOR MUTATIONS & FILTERS
+# ==========================================
+
+"""
+Structured input data for creating/updating an Author.
+"""
+input AuthorInput {
+    firstName: String!
+    lastName: String
+}
+
+"""
+Structured input data for creating/updating a Post.
+"""
+input PostInput {
+    title: String!
+    text: String!
+    category: String! # Using pure String
+    authorId: ID!
+}
+
+"""
+Filtering choices when querying multiple posts.
+"""
+input PostFilter {
+    titleContains: String
+    category: String  # Using pure String
+    authorId: ID
+}
+
+"""
+Filtering choices when querying multiple authors.
+"""
+input AuthorFilter {
+    firstNameContains: String
+    lastNameContains: String
+}
+
+# ==========================================
+# 4. EXPOSED OPERATIONS (QUERIES & MUTATIONS)
+# ==========================================
+
+type Query {
+    # Basic un-paginated queries
+    allAuthors: [Author!]!
+    author(id: ID!): Author
+    allPosts: [Post!]!
+    post(id: ID!): Post
+
+    # Advanced Paginated and Filtered queries
+    posts(offset: Int = 0, limit: Int = 10, filter: PostFilter): PostConnection!
+    authors(offset: Int = 0, limit: Int = 10, filter: AuthorFilter): AuthorConnection!
+}
+
+type Mutation {
+    # Author CRUD operations
+    createAuthor(input: AuthorInput!): Author!
+    updateAuthor(id: ID!, input: AuthorInput!): Author
+    deleteAuthor(id: ID!): Boolean!
+
+    # Post CRUD operations
+    createPost(input: PostInput!): Post!
+    updatePost(id: ID!, input: PostInput!): Post
+    deletePost(id: ID!): Boolean!
+}
